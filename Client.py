@@ -42,20 +42,23 @@ class ClientChatter:
 
     def connectWithServer(self):
         try:
+            self.printmessage()
             self.tcpSocket.connect((self.serverIp, self.serverPort))
+            
             # print("Connected")
-            helloMessage = f"HELO¤{self.screenName}¤{socket.gethostbyname(socket.gethostname())}¤{self.udp_port}\n"
-            print(f"My Port Number is {self.udp_port} ")
+            chatterIP = 'localhost'
+            helloMessage = f"HELO {self.screenName} {chatterIP} {self.udp_port}\n"
+            print(helloMessage)
             self.tcpSocket.sendall(helloMessage.encode())
-            response = self.tcpSocket.recv(1024).decode() # this is a blocking call
 
+            response = self.tcpSocket.recv(1024).decode() # this is a blocking call
+            print("Response: --->",response)
+
+
+            
             if response.startswith("ACPT"):
                 print(response,"Greeting acknowledged")
                 print(response)
-
-
-
-
 
 
         except Exception as e:
@@ -63,6 +66,14 @@ class ClientChatter:
             self.running = 0
 
     
+
+
+
+
+
+
+
+
 
 
     def read_Messages_From_Other_client(self):
@@ -108,7 +119,7 @@ class ClientChatter:
 
 
     def printmessage(self):
-        print(self.serverPort,self.screenName, self.serverIp)
+        print(self.screenName,self.serverIp,self.serverPort,)
 
     
 
