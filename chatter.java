@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class chatter {
+    
     private String screenName;
     private String serverIp;
     private int serverPort;
@@ -42,6 +43,7 @@ public class chatter {
 
 
 
+
     public void connectWithServer() {
         try {
             // printMessage();
@@ -57,15 +59,15 @@ public class chatter {
             output.write(helloMessage.getBytes());
             output.flush();
 
+
             BufferedReader reader = new BufferedReader(new InputStreamReader(tcpSocket.getInputStream()));
             String response = reader.readLine();
             if (response.startsWith("ACPT")) {
-                parseMemberList(response);
+                addMember(response);
             } else if (response.startsWith("RJCT")) {
                 System.out.println("Screen name already taken. Exiting...");
                 running = false;
             }
-
 
 
 
@@ -79,7 +81,7 @@ public class chatter {
 
 
 
-    private void parseMemberList(String response) {
+    private void addMember(String response) {
                 // System.out.println("Parsing members list: " + response);
             
                 // Remove "ACPT" and split members by ":"
@@ -112,17 +114,22 @@ public class chatter {
     public void userInput() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("You are now connected! Type your message and press Enter to send.");
-        System.out.println("Type '/exit' to leave the chatroom.");
     
         while (true) {
             System.out.println("You: "); // Display prompt before user input
             String userInput = scanner.nextLine();
             if (userInput.equalsIgnoreCase("/exit")) {
-                exitChatRoom();
-                break;
-            } else {
+                //  exitChatRoom();
+                 break;
+             } 
+            
+             else {
                 sendMessage(userInput);
-            }
+             }
+
+
+
+
         }
         scanner.close();
     }
@@ -133,13 +140,17 @@ public class chatter {
 
 
 
-        public void sendMessage(String message) {
+    public void sendMessage(String message) {
             String formattedMessage = "MESG " + screenName + ": " + message + "\n";
             // System.out.println("Sendinggggg Message --- "+ formattedMessage);
             // System.out.println("Member list --- "+ membersList);
-
+// COndition here to filter out
             for (Member member : membersList) {
-                sendUDPMessage(formattedMessage, member.getIp(), member.getPort());
+                // System.out.println(member);
+                // System.out.println("This is the screen name --------" + screenName);
+                if (!member.getScreenName().equals(screenName)) { // do not send it to myself
+                    sendUDPMessage(formattedMessage, member.getIp(), member.getPort());
+                }                
             }
         }
 
@@ -148,7 +159,7 @@ public class chatter {
 
 
 
-        private void sendUDPMessage(String message, String ip, int port) {
+    private void sendUDPMessage(String message, String ip, int port) {
             // System.out.println("Sending UDP ---------------->> " + message + "to ip = "+ ip + " and port = "+ port );
             try {
                 byte[] buffer = message.getBytes();
@@ -167,10 +178,34 @@ public class chatter {
 
 
 
-    public void exitChatRoom() {
-        System.out.println("Exiting - - - ");
-        // Placeholder method
-    }
+
+
+    
+    
+    
+    
+        // public void exitChatRoom() {
+        //     try {
+        //         OutputStream output = tcpSocket.getOutputStream();
+        //         String exitMessage = "EXIT\n";
+        //         output.write(exitMessage.getBytes());
+        //         output.flush();
+
+
+        //         System.out.println("Exit request sent to server.");
+    
+        //         // if (udpListener != null) {
+        //         //     udpListener.stopListener();
+        //         // }
+    
+        //         running = false;
+        //     } catch (Exception e) {
+        //         System.out.println("Error exiting chatroom: " + e.getMessage());
+        //     }
+        // }
+
+
+
 
 
 
@@ -190,10 +225,12 @@ public class chatter {
         connectWithServer();
         UDPListenerThread listen = new UDPListenerThread(udpSocket, membersList);
         listen.start();
+
         if(running == true){
             userInput();
-    
         }
+
+
 
     }
 

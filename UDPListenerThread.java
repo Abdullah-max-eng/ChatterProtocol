@@ -19,13 +19,25 @@ public class UDPListenerThread extends Thread {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
                 String receivedMessage = new String(packet.getData(), 0, packet.getLength());
+               
+               
                 if (receivedMessage.startsWith("MESG")) {
                     System.out.println(receivedMessage.substring(5)); // Display chat message
+                    System.out.println("You: ");
+                
                 } else if (receivedMessage.startsWith("JOIN")) {
                     handleJoinMessage(receivedMessage);
+                
+                
+                
                 } else if (receivedMessage.startsWith("EXIT")) {
                     handleExitMessage(receivedMessage);
+                
+                
                 }
+
+
+
             }
         } catch (Exception e) {
             System.out.println("Error in UDP Listener: " + e.getMessage());
@@ -50,6 +62,8 @@ public class UDPListenerThread extends Thread {
                     int port = Integer.parseInt(details[3].trim());  // Trim to remove extra \n
                     membersList.add(new Member(newUser, ip, port));
                     System.out.println(newUser + " has joined the chatroom.");
+                    System.out.println("You :");
+
                 } catch (NumberFormatException e) {
                     System.out.println("Error parsing port number: " + details[3]);
                 }
@@ -65,13 +79,17 @@ public class UDPListenerThread extends Thread {
 
 
     private void handleExitMessage(String message) {
-        String[] details = message.split("¤");
+        // System.out.println("This is the exit message from thread ---- "+ message);
+        String[] details = message.split(" ");
         if (details.length == 2) {
             String exitingUser = details[1];
             membersList.removeIf(member -> member.getScreenName().equals(exitingUser));
-            System.out.println(exitingUser + " has left the chatroom.");
+            System.out.println(exitingUser + " has left the chatroom....");
         }
     }
+
+
+    
 
 
 
